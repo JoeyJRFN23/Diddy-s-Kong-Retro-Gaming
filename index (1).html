@@ -66,7 +66,17 @@ let carrito=JSON.parse(localStorage.getItem("carrito"))||[];
 let desc=0;
 const cat=document.getElementById("catalogo");
 productos.forEach(p=>{
-cat.innerHTML+=`<div class='card'><div style="font-size:50px">${p.emoji}</div><h3>${p.titulo_juego}</h3><p>${p.plataforma}</p><p>$${p.precio_unitario}</p><button onclick="agregar(${p.id_producto})">Agregar al carrito</button></div>`;
+cat.innerHTML+=`<div class='card'>
+<div style="font-size:50px">${p.emoji}</div>
+<h3>${p.titulo_juego}</h3>
+<p><b>Plataforma:</b> ${p.plataforma}</p>
+<p><b>Región:</b> ${p.region}</p>
+<p><b>Manual:</b> ${p.incluye_manual?"Sí":"No"}</p>
+<p><b>Lanzamiento:</b> ${p.fecha_lanzamiento.dia}/${p.fecha_lanzamiento.mes}/${p.fecha_lanzamiento.anio}</p>
+<p><b>Stock:</b> ${p.stock_disponible}</p>
+<p>$${p.precio_unitario}</p>
+<button onclick="agregar(${p.id_producto})">Agregar al carrito</button>
+</div>`;
 });
 function guardar(){localStorage.setItem("carrito",JSON.stringify(carrito));document.getElementById("cant").textContent=carrito.reduce((a,b)=>a+b.cantidad,0);}
 function agregar(id){let i=carrito.find(x=>x.id_producto_ref==id);if(i)i.cantidad++;else carrito.push({id_item:Date.now(),id_producto_ref:id,cantidad:1});guardar();render();}
