@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Diddys Kong Retro Gaming</title>
+<style>
+*{box-sizing:border-box;font-family:Arial,sans-serif}
+body{margin:0;background:#f3f3f3}
+header{display:flex;justify-content:space-between;align-items:center;background:#e60012;color:#fff;padding:15px 25px;position:sticky;top:0}
+.badge{background:#fff;color:#e60012;padding:8px 14px;border-radius:20px;font-weight:bold}
+button{cursor:pointer}
+.banner{background:#fff;padding:35px;text-align:center}
+.banner h1{color:#e60012}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;padding:25px}
+.card{background:#fff;border-radius:10px;padding:15px;text-align:center;box-shadow:0 2px 8px #0002}
+.card button{background:#e60012;color:#fff;border:0;padding:10px 15px;border-radius:6px}
+.modal{display:none;position:fixed;inset:0;background:#0008;justify-content:center;align-items:center}
+.modalBox{background:#fff;padding:20px;border-radius:10px;width:min(700px,95%)}
+.item{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding:8px 0}
+</style>
+</head>
+<body>
+<header>
+<h2>🎮 Diddys Kong Retro Gaming</h2>
+<div class="badge">15% OFF con código NINTENDO15</div>
+<button onclick="abrir()">🛒 <span id="cant">0</span></button>
+</header>
+
+<section class="banner">
+<h1>Usá el código NINTENDO15</h1>
+<p>Obtené un 15% de descuento en toda la tienda.</p>
+</section>
+
+<section class="grid" id="catalogo"></section>
+
+<div class="modal" id="modal">
+<div class="modalBox">
+<h2>Carrito</h2>
+<div id="items"></div>
+<p>Subtotal: $<span id="sub">0</span></p>
+<input id="codigo" placeholder="Código NINTENDO15">
+<button onclick="descuento()">Aplicar</button>
+<p>Descuento: $<span id="desc">0</span></p>
+<p><b>Total: $<span id="tot">0</span></b></p>
+<h3>Método de pago</h3>
+<label><input type="radio" name="pago"> Tarjeta</label><br>
+<label><input type="radio" name="pago"> PayPal</label><br>
+<label><input type="radio" name="pago"> Cripto</label><br><br>
+<button onclick="comprar()">Finalizar Compra</button>
+<button onclick="cerrar()">Cerrar</button>
+</div>
+</div>
+
+<script>
+const productos=[
+{id_producto:1,titulo_juego:"Donkey Kong Country 2",plataforma:"SNES",region:"USA",precio_unitario:49.99,stock_disponible:10,incluye_manual:true,fecha_lanzamiento:{dia:21,mes:11,anio:1995},emoji:"🦍"},
+{id_producto:2,titulo_juego:"Diddy Kong Racing",plataforma:"N64",region:"USA",precio_unitario:59.99,stock_disponible:8,incluye_manual:true,fecha_lanzamiento:{dia:1,mes:1,anio:1997},emoji:"🏎️"},
+{id_producto:3,titulo_juego:"Super Mario World",plataforma:"SNES",region:"USA",precio_unitario:39.99,stock_disponible:6,incluye_manual:true,fecha_lanzamiento:{dia:21,mes:11,anio:1990},emoji:"🍄"},
+{id_producto:4,titulo_juego:"The Legend of Zelda: Ocarina of Time",plataforma:"N64",region:"USA",precio_unitario:69.99,stock_disponible:5,incluye_manual:true,fecha_lanzamiento:{dia:21,mes:11,anio:1998},emoji:"🗡️"},
+{id_producto:5,titulo_juego:"Donkey Kong Tropical Freeze",plataforma:"Switch",region:"USA",precio_unitario:44.99,stock_disponible:12,incluye_manual:false,fecha_lanzamiento:{dia:4,mes:5,anio:2018},emoji:"❄️"},
+{id_producto:6,titulo_juego:"Super Mario Kart",plataforma:"SNES",region:"USA",precio_unitario:34.99,stock_disponible:9,incluye_manual:true,fecha_lanzamiento:{dia:27,mes:8,anio:1992},emoji:"🏁"}
+];
+
+let carrito=JSON.parse(localStorage.getItem("carrito"))||[];
+let desc=0;
+const cat=document.getElementById("catalogo");
+productos.forEach(p=>{
+cat.innerHTML+=`<div class='card'><div style="font-size:50px">${p.emoji}</div><h3>${p.titulo_juego}</h3><p>${p.plataforma}</p><p>$${p.precio_unitario}</p><button onclick="agregar(${p.id_producto})">Agregar al carrito</button></div>`;
+});
+function guardar(){localStorage.setItem("carrito",JSON.stringify(carrito));document.getElementById("cant").textContent=carrito.reduce((a,b)=>a+b.cantidad,0);}
+function agregar(id){let i=carrito.find(x=>x.id_producto_ref==id);if(i)i.cantidad++;else carrito.push({id_item:Date.now(),id_producto_ref:id,cantidad:1});guardar();render();}
+function quitar(id){carrito=carrito.filter(x=>x.id_item!=id);guardar();render();}
+function render(){let html="",sub=0;carrito.forEach(i=>{let p=productos.find(x=>x.id_producto==i.id_producto_ref);let s=p.precio_unitario*i.cantidad;sub+=s;html+=`<div class=item>${p.titulo_juego} x${i.cantidad} $${s.toFixed(2)} <button onclick="quitar(${i.id_item})">Quitar</button></div>`});items.innerHTML=html;subEl.textContent=sub.toFixed(2);descEl.textContent=desc.toFixed(2);tot.textContent=(sub-desc).toFixed(2);}
+const subEl=document.getElementById("sub"),descEl=document.getElementById("desc"),tot=document.getElementById("tot"),items=document.getElementById("items");
+function descuento(){let s=parseFloat(subEl.textContent);desc=(codigo.value.trim()=="NINTENDO15")?s*0.15:0;render();}
+function abrir(){modal.style.display="flex";render();}
+function cerrar(){modal.style.display="none";}
+function comprar(){if(carrito.length==0){alert("Carrito vacío");return;}if(!document.querySelector("input[name=pago]:checked")){alert("Seleccione un método de pago");return;}alert("¡Compra realizada con éxito!");carrito=[];desc=0;guardar();render();cerrar();}
+guardar();render();
+</script>
+</body>
+</html>
